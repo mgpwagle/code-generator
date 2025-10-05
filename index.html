@@ -8,6 +8,9 @@
     <!-- SEO Meta Tags -->
     <meta name="description" content="Free Universal QR and Barcode Generator. Create standard QR Codes and Code 128 barcodes instantly and securely using only client-side logic.">
     <meta name="keywords" content="QR code generator, barcode generator, free, secure, online tool, Code 128">
+    
+    <!-- Canonical Link for Promotion -->
+    <link rel="canonical" href="https://mgpwagle.github.io/code-generator/">
 
     <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -168,7 +171,7 @@
             <p className="text-red-500 font-bold text-center">{error}</p>
           ) : value.trim() ? (
             <div ref={qrRef} className="p-2 border-4 border-slate-100 rounded-lg">
-              {/* QR Code will be drawn here by QRCode.js */}
+              <!-- QR Code will be drawn here by QRCode.js -->
             </div>
           ) : (
             <p className="text-gray-500 italic">Enter text or a URL and click 'Generate' to create a QR Code.</p>
@@ -290,6 +293,19 @@
                     {activeTab === 'Barcode' && <BarcodeGenerator value={codeValue} />}
                 </section>
             </React.Fragment>
+
+            {/* Footer for link promotion */}
+            <footer className="mt-8 pt-4 border-t border-gray-100 text-center text-sm text-gray-500">
+                Project hosted at: 
+                <a 
+                    href="https://mgpwagle.github.io/code-generator/" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-indigo-600 hover:text-indigo-800 font-medium ml-1 transition-colors"
+                >
+                    mgpwagle.github.io/code-generator/
+                </a>
+            </footer>
 
           </div>
         </div>
