@@ -13,6 +13,18 @@
             font-family: 'Inter', sans-serif;
         }
     </style>
+
+    <!-- Google Analytics (GA4) Tracking Code for Usage and Location Tracking -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-0EYLBGXZ2J"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      // IMPORTANT: REPLACE 'G-XXXXXXXXXX' with your actual Google Analytics Measurement ID
+      gtag('config', 'G-0EYLBGXZ2J');
+    </script>
+    <!-- End Google Analytics Tracking Code -->
+
     <!-- Load React and Babel for JSX compilation -->
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
@@ -36,23 +48,19 @@
      */
     const BarcodeGenerator = ({ value }) => {
       const svgRef = useRef(null);
-      const [error, setError] = useState(null); // State for explicit error messages
+      const [error, setError] = useState(null);
 
       // Function to render the barcode using the global JsBarcode object
       const renderBarcode = useCallback(() => {
-        // Check if the required global library is available
         if (typeof JsBarcode === 'undefined') {
             setError("ERROR: JsBarcode library is not loaded. Cannot generate Barcode.");
             return;
         }
-        setError(null); // Clear error if library is found
+        setError(null);
 
-        // Proceed with generation only if library is loaded and value exists
         if (svgRef.current && value.trim()) {
-          // Clear previous content
           svgRef.current.innerHTML = '';
           
-          // Use JsBarcode to render to the SVG element
           try {
             JsBarcode(svgRef.current, value.trim(), {
               format: "CODE128",
@@ -60,7 +68,7 @@
               text: value,
               textAlign: "center",
               textPosition: "bottom",
-              flat: true, // Use clean, flat lines
+              flat: true,
               height: 80,
               width: 2,
             });
@@ -68,13 +76,11 @@
             setError(`Barcode generation failed: ${e.message}`);
           }
         } else if (svgRef.current) {
-            // Clear the SVG if the value is empty
             svgRef.current.innerHTML = '';
         }
       }, [value]);
 
       useEffect(() => {
-        // Re-render the barcode whenever the 'value' prop changes
         renderBarcode();
       }, [value, renderBarcode]);
 
@@ -97,44 +103,37 @@
      */
     const QrGenerator = ({ value }) => {
       const qrRef = useRef(null);
-      const [error, setError] = useState(null); // State for explicit error messages
+      const [error, setError] = useState(null);
 
       // Function to render the QR code using the global QRCode object
       const renderQrCode = useCallback(() => {
-        // Check if the required global library is available
         if (typeof QRCode === 'undefined') {
             setError("ERROR: QRCode.js library is not loaded. Cannot generate QR Code.");
             return;
         }
-        setError(null); // Clear error if library is found
+        setError(null);
 
-        // Proceed with generation only if library is loaded and value exists
         if (qrRef.current && value.trim()) {
-          // Clear previous QR code if it exists
           qrRef.current.innerHTML = '';
 
-          // Create a new QR code instance
           try {
-            // QRCode.js initializes and draws the QR code into the container div
             new QRCode(qrRef.current, {
               text: value.trim(),
               width: 256,
               height: 256,
               colorDark : "#000000",
               colorLight : "#ffffff",
-              correctLevel : QRCode.CorrectLevel.H // High error correction
+              correctLevel : QRCode.CorrectLevel.H
             });
           } catch (e) {
             setError(`QR Code generation failed: ${e.message}`);
           }
         } else if (qrRef.current) {
-            // Clear the container if the value is empty
             qrRef.current.innerHTML = '';
         }
       }, [value]);
 
       useEffect(() => {
-        // Re-render the QR code whenever the 'value' prop changes
         renderQrCode();
       }, [value, renderQrCode]);
 
@@ -158,24 +157,41 @@
      */
     const App = () => {
       const defaultInput = 'https://www.google.com';
-      // State for the text field input (live updating)
       const [inputValue, setInputValue] = useState(defaultInput);
-      // State for the value currently used to generate the code (updates only on button click)
       const [codeValue, setCodeValue] = useState(defaultInput);
-      const [activeTab, setActiveTab] = useState('QR'); // 'QR' or 'Barcode'
+      const [activeTab, setActiveTab] = useState('QR');
       const inputRef = useRef(null);
 
       // Function to generate the code by updating the codeValue state
       const handleGenerate = () => {
-        // Update codeValue to trigger the generator components
         setCodeValue(inputValue);
+        
+        // --- GOOGLE ANALYTICS TRACKING: Track code generation event ---
+        if (typeof gtag === 'function') {
+            gtag('event', 'code_generated', {
+                'event_category': 'Engagement',
+                'event_label': activeTab + '_code',
+                'code_type': activeTab,
+                'data_length': inputValue.length
+            });
+        }
+        // ---------------------------------------------------------------
       };
 
       const handleTabClick = (tab) => {
         setActiveTab(tab);
-        // When switching tabs, automatically trigger generation for the current input value
         setCodeValue(inputValue);
         inputRef.current.focus();
+
+        // --- GOOGLE ANALYTICS TRACKING: Track tab switch event ---
+        if (typeof gtag === 'function') {
+            gtag('event', 'tab_switch', {
+                'event_category': 'Navigation',
+                'event_label': tab + '_tab',
+                'new_tab': tab
+            });
+        }
+        // ---------------------------------------------------------
       };
 
       const TabButton = ({ tabName }) => (
