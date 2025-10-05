@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal Code Generator</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom font for better aesthetics */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+    <!-- Load React and Babel for JSX compilation -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- MANDATORY: Load External Code Generation Libraries -->
+    <!-- 1. JsBarcode for Barcode generation (Code 128) -->
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+    <!-- 2. QRCode.js for QR Code generation -->
+    <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs@gh-pages/qrcode.min.js"></script>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+    const { useState, useEffect, useRef, useCallback } = React;
+
+    /**
+     * Component to display Code 128 Barcode.
+     * It uses the global JsBarcode library to render the barcode into an SVG element.
+     */
+    const BarcodeGenerator = ({ value }) => {
+      const svgRef = useRef(null);
+      const [error, setError] = useState(null); // State for explicit error messages
+
+      // Function to render the barcode using the global JsBarcode object
+      const renderBarcode = useCallback(() => {
+        // Check if the required global library is available
+        if (typeof JsBarcode === 'undefined') {
+            setError("ERROR: JsBarcode library is not loaded. Cannot generate Barcode.");
+            return;
+        }
+        setError(null); // Clear error if library is found
+
+        // Proceed with generation only if library is loaded and value exists
+        if (svgRef.current && value.trim()) {
+          // Clear previous content
+          svgRef.current.innerHTML = '';
+          
+          // Use JsBarcode to render to the SVG element
+          try {
+            JsBarcode(svgRef.current, value.trim(), {
+              format: "CODE128",
+              displayValue: true,
+              text: value,
+              textAlign: "center",
+              textPosition: "bottom",
+              flat: true, // Use clean, flat lines
+              height: 80,
+              width: 2,
+            });
+          } catch (e) {
+            setError(`Barcode generation failed: ${e.message}`);
+          }
+        } else if (svgRef.current) {
+            // Clear the SVG if the value is empty
+            svgRef.current.innerHTML = '';
+        }
+      }, [value]);
+
+      useEffect(() => {
+        // Re-render the barcode whenever the 'value' prop changes
+        renderBarcode();
+      }, [value, renderBarcode]);
+
+      return (
+        <div className="flex justify-center p-6 bg-white rounded-xl shadow-inner mt-4 w-full">
+          {error ? (
+            <p className="text-red-500 font-bold text-center">{error}</p>
+          ) : value.trim() ? (
+            <svg ref={svgRef} className="max-w-full h-auto"></svg>
+          ) : (
+            <p className="text-gray-500 italic">Enter text or a URL and click 'Generate' to create a Barcode.</p>
+          )}
+        </div>
+      );
+    };
+
+    /**
+     * Component to display QR Code.
+     * It uses the global QRCode library to render the QR code into a DIV element.
+     */
+    const QrGenerator = ({ value }) => {
+      const qrRef = useRef(null);
+      const [error, setError] = useState(null); // State for explicit error messages
+
+      // Function to render the QR code using the global QRCode object
+      const renderQrCode = useCallback(() => {
+        // Check if the required global library is available
+        if (typeof QRCode === 'undefined') {
+            setError("ERROR: QRCode.js library is not loaded. Cannot generate QR Code.");
+            return;
+        }
+        setError(null); // Clear error if library is found
+
+        // Proceed with generation only if library is loaded and value exists
+        if (qrRef.current && value.trim()) {
+          // Clear previous QR code if it exists
+          qrRef.current.innerHTML = '';
+
+          // Create a new QR code instance
+          try {
+            // QRCode.js initializes and draws the QR code into the container div
+            new QRCode(qrRef.current, {
+              text: value.trim(),
+              width: 256,
+              height: 256,
+              colorDark : "#000000",
+              colorLight : "#ffffff",
+              correctLevel : QRCode.CorrectLevel.H // High error correction
+            });
+          } catch (e) {
+            setError(`QR Code generation failed: ${e.message}`);
+          }
+        } else if (qrRef.current) {
+            // Clear the container if the value is empty
+            qrRef.current.innerHTML = '';
+        }
+      }, [value]);
+
+      useEffect(() => {
+        // Re-render the QR code whenever the 'value' prop changes
+        renderQrCode();
+      }, [value, renderQrCode]);
+
+      return (
+        <div className="flex justify-center p-6 bg-white rounded-xl shadow-inner mt-4 w-full">
+          {error ? (
+            <p className="text-red-500 font-bold text-center">{error}</p>
+          ) : value.trim() ? (
+            <div ref={qrRef} className="p-2 border-4 border-slate-100 rounded-lg">
+              {/* QR Code will be drawn here by QRCode.js */}
+            </div>
+          ) : (
+            <p className="text-gray-500 italic">Enter text or a URL and click 'Generate' to create a QR Code.</p>
+          )}
+        </div>
+      );
+    };
+
+    /**
+     * Main application component.
+     */
+    const App = () => {
+      const defaultInput = 'https://www.google.com';
+      // State for the text field input (live updating)
+      const [inputValue, setInputValue] = useState(defaultInput);
+      // State for the value currently used to generate the code (updates only on button click)
+      const [codeValue, setCodeValue] = useState(defaultInput);
+      const [activeTab, setActiveTab] = useState('QR'); // 'QR' or 'Barcode'
+      const inputRef = useRef(null);
+
+      // Function to generate the code by updating the codeValue state
+      const handleGenerate = () => {
+        // Update codeValue to trigger the generator components
+        setCodeValue(inputValue);
+      };
+
+      const handleTabClick = (tab) => {
+        setActiveTab(tab);
+        // When switching tabs, automatically trigger generation for the current input value
+        setCodeValue(inputValue);
+        inputRef.current.focus();
+      };
+
+      const TabButton = ({ tabName }) => (
+        <button
+          onClick={() => handleTabClick(tabName)}
+          className={`py-3 px-8 text-lg font-semibold rounded-t-xl transition-all duration-300 ease-in-out
+            ${activeTab === tabName
+              ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-500/50'
+              : 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200'
+            }
+          `}
+        >
+          {tabName} Code
+        </button>
+      );
+
+      return (
+        <div className="min-h-screen bg-gray-50 flex items-start justify-center p-4 sm:p-8 font-sans">
+          <div className="w-full max-w-2xl bg-white rounded-xl shadow-2xl p-6 sm:p-8 border border-gray-100">
+
+            {/* Header and Menu Tabs */}
+            <header className="mb-6">
+              <h1 className="text-3xl font-extrabold text-gray-900 mb-4 text-center">
+                Universal Code Generator
+              </h1>
+              <div className="flex justify-center border-b-2 border-indigo-100">
+                <TabButton tabName="QR" />
+                <TabButton tabName="Barcode" />
+              </div>
+            </header>
+
+            {/* Input Area */}
+            <section className="mb-8">
+              <label htmlFor="code-input" className="block text-sm font-medium text-gray-700 mb-2">
+                Enter Text, URL, or Data to Encode:
+              </label>
+              <input
+                ref={inputRef}
+                id="code-input"
+                type="text"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={(e) => { // Allow Enter key to trigger generation
+                    if (e.key === 'Enter') {
+                        handleGenerate();
+                    }
+                }}
+                placeholder={`Enter data for ${activeTab} Code generation...`}
+                className="w-full p-3 border border-gray-300 rounded-t-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-gray-800"
+                aria-label="Code input data"
+              />
+              <button
+                onClick={handleGenerate}
+                className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-b-lg transition-colors duration-200 shadow-md transform hover:scale-[1.005] active:scale-100"
+              >
+                Generate {activeTab} Code
+              </button>
+              <p className="mt-4 text-sm text-gray-500">
+                {activeTab === 'QR'
+                  ? 'QR Codes are great for URLs and long data strings.'
+                  : 'Barcodes (Code 128) work best for short, alphanumeric data (e.g., product IDs).'
+                }
+              </p>
+            </section>
+
+            {/* Code Output Area */}
+            <section className="flex flex-col items-center min-h-[300px]">
+              <h2 className="text-xl font-bold text-gray-800 mb-4">
+                Generated {activeTab} Code
+              </h2>
+              {/* Conditional rendering based on the active tab */}
+              {activeTab === 'QR' && <QrGenerator value={codeValue} />}
+              {activeTab === 'Barcode' && <BarcodeGenerator value={codeValue} />}
+            </section>
+
+          </div>
+        </div>
+      );
+    };
+
+    // Render the React application
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    </script>
+</body>
+</html>
