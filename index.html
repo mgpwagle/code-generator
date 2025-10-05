@@ -3,7 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Universal Code Generator</title>
+    <title>Universal Code Generator - Free & Secure</title>
+
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Free Universal QR and Barcode Generator. Generate standard QR Codes and Code 128 barcodes instantly and securely using only client-side logic.">
+    <meta name="keywords" content="QR code generator, barcode generator, free, secure, online tool, Code 128">
+
     <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -11,19 +16,36 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
         body {
             font-family: 'Inter', sans-serif;
+            min-height: 100vh;
         }
     </style>
 
-    <!-- Google Analytics (GA4) Tracking Code for Usage and Location Tracking -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-0EYLBGXZ2J"></script>
+    <!-- Google Analytics (GA4) Global Site Tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-      // IMPORTANT: REPLACE 'G-XXXXXXXXXX' with your actual Google Analytics Measurement ID
-      gtag('config', 'G-0EYLBGXZ2J');
+      gtag('config', 'G-XXXXXXXXXX'); // !!! IMPORTANT: REPLACE 'G-XXXXXXXXXX' with your Measurement ID
     </script>
-    <!-- End Google Analytics Tracking Code -->
+
+    <!-- SEO: JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Universal Code Generator",
+      "applicationCategory": "UtilityApplication",
+      "operatingSystem": "Web",
+      "description": "A free, secure, and client-side tool to generate QR codes and Barcodes.",
+      "inLanguage": "en-US",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      }
+    }
+    </script>
 
     <!-- Load React and Babel for JSX compilation -->
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
@@ -31,9 +53,7 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
     <!-- MANDATORY: Load External Code Generation Libraries -->
-    <!-- 1. JsBarcode for Barcode generation (Code 128) -->
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
-    <!-- 2. QRCode.js for QR Code generation -->
     <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs@gh-pages/qrcode.min.js"></script>
 </head>
 <body>
@@ -42,15 +62,24 @@
     <script type="text/babel">
     const { useState, useEffect, useRef, useCallback } = React;
 
-    /**
-     * Component to display Code 128 Barcode.
-     * It uses the global JsBarcode library to render the barcode into an SVG element.
-     */
+    // --- ANALYTICS UTILITY ---
+
+    const trackEvent = (eventName, params = {}) => {
+        if (typeof gtag === 'function') {
+          gtag('event', eventName, params);
+        } else {
+          // Fallback log for environments where gtag isn't ready
+          console.log(`Analytics event tracked: ${eventName}`, params);
+        }
+    };
+
+
+    // --- CODE GENERATOR COMPONENTS ---
+
     const BarcodeGenerator = ({ value }) => {
       const svgRef = useRef(null);
       const [error, setError] = useState(null);
 
-      // Function to render the barcode using the global JsBarcode object
       const renderBarcode = useCallback(() => {
         if (typeof JsBarcode === 'undefined') {
             setError("ERROR: JsBarcode library is not loaded. Cannot generate Barcode.");
@@ -97,15 +126,10 @@
       );
     };
 
-    /**
-     * Component to display QR Code.
-     * It uses the global QRCode library to render the QR code into a DIV element.
-     */
     const QrGenerator = ({ value }) => {
       const qrRef = useRef(null);
       const [error, setError] = useState(null);
 
-      // Function to render the QR code using the global QRCode object
       const renderQrCode = useCallback(() => {
         if (typeof QRCode === 'undefined') {
             setError("ERROR: QRCode.js library is not loaded. Cannot generate QR Code.");
@@ -152,6 +176,7 @@
       );
     };
 
+
     /**
      * Main application component.
      */
@@ -161,37 +186,26 @@
       const [codeValue, setCodeValue] = useState(defaultInput);
       const [activeTab, setActiveTab] = useState('QR');
       const inputRef = useRef(null);
+      
 
-      // Function to generate the code by updating the codeValue state
+      // --- HANDLERS ---
+
       const handleGenerate = () => {
         setCodeValue(inputValue);
-        
-        // --- GOOGLE ANALYTICS TRACKING: Track code generation event ---
-        if (typeof gtag === 'function') {
-            gtag('event', 'code_generated', {
-                'event_category': 'Engagement',
-                'event_label': activeTab + '_code',
-                'code_type': activeTab,
-                'data_length': inputValue.length
-            });
-        }
-        // ---------------------------------------------------------------
+        // Analytics tracking
+        trackEvent('code_generated', {
+            code_type: activeTab,
+            data_length: inputValue.length,
+            method: 'manual_input'
+        });
       };
 
       const handleTabClick = (tab) => {
         setActiveTab(tab);
         setCodeValue(inputValue);
+        // Analytics tracking
+        trackEvent('tab_switch', { new_tab: tab });
         inputRef.current.focus();
-
-        // --- GOOGLE ANALYTICS TRACKING: Track tab switch event ---
-        if (typeof gtag === 'function') {
-            gtag('event', 'tab_switch', {
-                'event_category': 'Navigation',
-                'event_label': tab + '_tab',
-                'new_tab': tab
-            });
-        }
-        // ---------------------------------------------------------
       };
 
       const TabButton = ({ tabName }) => (
@@ -213,7 +227,7 @@
           <div className="w-full max-w-2xl bg-white rounded-xl shadow-2xl p-6 sm:p-8 border border-gray-100">
 
             {/* Header and Menu Tabs */}
-            <header className="mb-6">
+            <header className="mb-8 mt-2">
               <h1 className="text-3xl font-extrabold text-gray-900 mb-4 text-center">
                 Universal Code Generator
               </h1>
@@ -222,11 +236,11 @@
                 <TabButton tabName="Barcode" />
               </div>
             </header>
-
-            {/* Input Area */}
-            <section className="mb-8">
-              <label htmlFor="code-input" className="block text-sm font-medium text-gray-700 mb-2">
-                Enter Text, URL, or Data to Encode:
+            
+            {/* Manual Input Area (now the main focus) */}
+            <section className="mb-8 p-6 bg-gray-50 rounded-xl border border-gray-200">
+              <label htmlFor="code-input" className="block text-xl font-bold text-gray-700 mb-4 text-center">
+                Enter Data to Encode:
               </label>
               <input
                 ref={inputRef}
@@ -239,21 +253,21 @@
                         handleGenerate();
                     }
                 }}
-                placeholder={`Enter data for ${activeTab} Code generation...`}
-                className="w-full p-3 border border-gray-300 rounded-t-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-gray-800"
+                placeholder={`Enter data for ${activeTab} Code generation (e.g., URL, Product ID)...`}
+                className="w-full p-4 border border-gray-300 rounded-t-lg shadow-sm focus:ring-green-500 focus:border-green-500 text-gray-800 text-lg"
                 aria-label="Code input data"
               />
-              <button
-                onClick={handleGenerate}
-                className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-b-lg transition-colors duration-200 shadow-md transform hover:scale-[1.005] active:scale-100"
-              >
-                Generate {activeTab} Code
-              </button>
-              <p className="mt-4 text-sm text-gray-500">
-                {activeTab === 'QR'
-                  ? 'QR Codes are great for URLs and long data strings.'
-                  : 'Barcodes (Code 128) work best for short, alphanumeric data (e.g., product IDs).'
-                }
+              <div className="flex w-full">
+                <button
+                  onClick={handleGenerate}
+                  className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-4 rounded-b-lg transition-colors duration-200 shadow-md transform hover:scale-[1.005] active:scale-100 text-lg"
+                >
+                  Generate {activeTab} Code
+                </button>
+              </div>
+
+              <p className="mt-4 text-sm text-gray-500 text-center">
+                <span className="font-semibold">{activeTab} Codes</span> are best for {activeTab === 'QR' ? 'URLs and long strings of text.' : 'short, alphanumeric data.'}
               </p>
             </section>
 
@@ -273,7 +287,9 @@
     };
 
     // Render the React application
-    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    if (typeof ReactDOM !== 'undefined' && typeof document !== 'undefined') {
+        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    }
     </script>
 </body>
 </html>
