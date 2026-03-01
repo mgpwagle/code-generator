@@ -13,9 +13,10 @@ This repo includes a GitHub Actions workflow that deploys `/portfolio` to **GitH
 
 ### 1) Push this repository to GitHub
 ```bash
-git remote add origin https://github.com/<your-username>/code-generator.git
-git push -u origin work
+git remote add origin https://github.com/<your-username>/<your-repo>.git
+git push -u origin main
 ```
+(If your branch is `work` or `master`, push that branch instead; workflow supports all three.)
 
 ### 2) Enable GitHub Pages in your repo
 1. Open **Settings → Pages**
@@ -23,13 +24,14 @@ git push -u origin work
 
 ### 3) Wait for deployment
 - Open **Actions** tab and check workflow: **Deploy portfolio to GitHub Pages**
-- After success, your live URL will be:
+- After success, open the URL shown in the deploy step output.
 
-`https://<your-username>.github.io/code-generator/`
+## 404 fix for your specific URL
+If `https://mgpwagle.github.io/portfolio` shows 404, it means the site is being checked at the wrong path.
 
-> This deployment publishes the `portfolio/` folder as the web root, so visitors open the URL directly.
+Use this mapping:
+- If repo name is `portfolio` → `https://mgpwagle.github.io/portfolio/`
+- If repo name is `code-generator` → `https://mgpwagle.github.io/code-generator/`
+- If repo is user-site `mgpwagle.github.io` → `https://mgpwagle.github.io/`
 
-## Manual URL pattern (if you deploy differently)
-If you publish full repository root instead of only `portfolio/`, your link becomes:
-
-`https://<your-username>.github.io/code-generator/portfolio/`
+> GitHub Pages URL must include the repository name for project sites.

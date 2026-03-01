@@ -2,7 +2,7 @@ name: Deploy portfolio to GitHub Pages
 
 on:
   push:
-    branches: ["main", "work"]
+    branches: ["main", "master", "work"]
     paths:
       - "portfolio/**"
       - ".github/workflows/deploy-portfolio-pages.yml"
@@ -31,10 +31,16 @@ jobs:
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
+      - name: Prepare static artifact
+        run: |
+          mkdir -p _site
+          cp -R portfolio/* _site/
+          touch _site/.nojekyll
+
       - name: Upload portfolio artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./portfolio
+          path: ./_site
 
       - name: Deploy to GitHub Pages
         id: deployment
