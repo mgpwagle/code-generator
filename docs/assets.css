@@ -1,0 +1,58 @@
+:root {
+  --bg: #0f172a;
+  --surface: #111827;
+  --card: #1f2937;
+  --text: #f8fafc;
+  --muted: #cbd5e1;
+  --accent: #38bdf8;
+  --accent-2: #22d3ee;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,Segoe UI,system-ui,sans-serif;background:radial-gradient(circle at 15% 10%,color-mix(in oklab,var(--accent) 25%, #0f172a) 0%,#0f172a 42%),linear-gradient(135deg,#0f172a,#111827);color:var(--text)}
+.container{max-width:1120px;margin:0 auto;padding:28px}
+.demo-badge{position:fixed;top:14px;right:14px;background:var(--accent);color:#041018;font-weight:800;padding:8px 12px;border-radius:999px;font-size:12px;z-index:40;box-shadow:0 8px 22px color-mix(in oklab,var(--accent) 35%, transparent)}
+.site-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.logo{font-weight:800;letter-spacing:.3px}
+.tag{display:inline-block;padding:5px 11px;border:1px solid color-mix(in oklab,var(--accent) 40%, #fff 20%);border-radius:999px;color:var(--accent-2);font-size:12px}
+.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:24px;margin:30px 0}
+.card{background:color-mix(in oklab,var(--card) 86%, black 14%);border:1px solid color-mix(in oklab,var(--accent) 25%, #1f2937);border-radius:18px;padding:18px;backdrop-filter:blur(6px);transition:all .35s ease}
+.hero h1{font-size:clamp(30px,5.6vw,54px);line-height:1.04;margin:10px 0}
+p{color:var(--muted);line-height:1.65}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:11px 16px;border-radius:12px;background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#071018;font-weight:700;text-decoration:none;margin-right:10px}
+.btn.secondary{background:transparent;color:var(--text);border:1px solid color-mix(in oklab,var(--accent) 40%, #fff 20%)}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.kpi-num{font-size:28px;font-weight:800;color:var(--accent)}
+.products{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:18px}
+.product img{width:100%;height:170px;object-fit:cover;border-radius:12px;margin-bottom:10px;border:1px solid #ffffff26}
+footer{margin:28px 0 10px;color:#9fb1c8;font-size:14px}
+.menu{display:flex;gap:10px;flex-wrap:wrap}
+.menu a{color:#e8f0ff;text-decoration:none;padding:7px 10px;border-radius:10px;transition:all .35s ease}
+.menu-pill a{border:1px solid #ffffff2f;background:#ffffff12}
+.menu-pill a:hover{background:var(--accent);color:#03111b}
+.menu-underline a{border-bottom:2px solid transparent;border-radius:0;padding:6px 2px}
+.menu-underline a:hover{border-color:var(--accent);transform:translateY(-1px)}
+.menu-block a{background:#0b1228;border:1px solid #24325a}
+.menu-block a:hover{background:linear-gradient(90deg,var(--accent),#4ade80);color:#02131e}
+.menu-dot a::before{content:'• ';color:var(--accent)}
+.menu-dot a:hover{letter-spacing:.3px;color:var(--accent-2)}
+.menu-split{justify-content:space-between;align-items:center;width:100%}
+.menu-split div{display:flex;gap:10px;flex-wrap:wrap}
+.menu-split span{color:var(--accent);font-weight:700}
+.hover-rise:hover{transform:translateY(-7px)}
+.hover-glow:hover{box-shadow:0 12px 28px color-mix(in oklab,var(--accent) 34%, transparent)}
+.hover-tilt:hover{transform:rotate(-.7deg) scale(1.02)}
+.hover-slide:hover{transform:translateX(6px)}
+.hover-expand:hover{transform:scale(1.03)}
+.hover-shadow:hover{box-shadow:0 18px 34px #0000006b}
+.hover-border:hover{border-color:var(--accent)}
+.hover-flip:hover{transform:perspective(500px) rotateX(3deg)}
+.animate{animation:var(--anim) var(--dur) ease-in-out infinite alternate}
+@keyframes floatY{from{transform:translateY(0)}to{transform:translateY(-10px)}}
+@keyframes pulseGlow{from{box-shadow:0 0 0 transparent}to{box-shadow:0 0 24px color-mix(in oklab,var(--accent) 50%, transparent)}}
+@keyframes driftX{from{transform:translateX(0)}to{transform:translateX(8px)}}
+@keyframes spinSoft{from{transform:rotate(0)}to{transform:rotate(.9deg)}}
+@keyframes breathe{from{transform:scale(1)}to{transform:scale(1.02)}}
+@keyframes waveLift{from{transform:translateY(0) rotate(0)}to{transform:translateY(-6px) rotate(.6deg)}}
+@keyframes fadeInUp{from{opacity:.85;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes zoomCalm{from{transform:scale(1)}to{transform:scale(1.025)}}
+@media (max-width: 900px){.hero{grid-template-columns:1fr}.kpis,.products{grid-template-columns:1fr}}
