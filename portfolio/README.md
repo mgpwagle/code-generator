@@ -35,3 +35,7 @@ Use this mapping:
 - If repo is user-site `mgpwagle.github.io` → `https://mgpwagle.github.io/`
 
 > GitHub Pages URL must include the repository name for project sites.
+
+
+## Repository protection (recommended)
+For safer collaboration, configure classic branch protection rules as described in `docs/branch-protection.md`.
