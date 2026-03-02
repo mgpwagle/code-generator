@@ -3,6 +3,11 @@ name: Deploy portfolio to GitHub Pages
 on:
   push:
     branches: ["main", "master", "work"]
+ 
+  workflow_dispatch:
+
+permissions:
+  contents: write 
     paths:
       - "portfolio/**"
       - ".github/workflows/deploy-portfolio-pages.yml"
@@ -10,6 +15,7 @@ on:
 
 permissions:
   contents: read
+ 
   pages: write
   id-token: write
 
@@ -18,6 +24,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
   deploy:
     environment:
       name: github-pages
@@ -28,21 +36,76 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+ 
       - name: Configure Pages
         uses: actions/configure-pages@v5
-
+ 
       - name: Prepare static artifact
         run: |
           mkdir -p _site _site/portfolio
           cp -R portfolio/* _site/
           cp -R portfolio/* _site/portfolio/
           touch _site/.nojekyll
+ 
+          test -f _site/assets.css
+          test -f _site/sites/site-001.html
+          test -f _site/portfolio/assets.css
+          test -f _site/portfolio/sites/site-001.html
+
+      - name: Upload artifact for Pages
+        uses: actions/upload-artifact@v4
+        with:
+          name: portfolio-site
+          path: _site
+
+  deploy_pages:
+    needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download site artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: portfolio-site
+          path: _site
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+ 
 
       - name: Upload portfolio artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./_site
+ 
 
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+ 
+
+  deploy_gh_pages_branch:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download site artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: portfolio-site
+          path: _site
+
+      - name: Publish to gh-pages branch (for Branch source compatibility)
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: _site
+          publish_branch: gh-pages
+          force_orphan: true
+ 
