@@ -33,8 +33,9 @@ jobs:
 
       - name: Prepare static artifact
         run: |
-          mkdir -p _site
+          mkdir -p _site _site/portfolio
           cp -R portfolio/* _site/
+          cp -R portfolio/* _site/portfolio/
           touch _site/.nojekyll
 
       - name: Upload portfolio artifact
