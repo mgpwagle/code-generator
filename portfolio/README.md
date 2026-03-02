@@ -11,7 +11,7 @@ This portfolio now includes 100 company demos with **different layout and conten
 ## View
 - `portfolio/index.html`
 - `portfolio/sites/site-001.html` ... `portfolio/sites/site-100.html`
-
+ 
 
 ## Published branch + CSS troubleshooting
 - This workflow now updates both **GitHub Pages (Actions source)** and the **`gh-pages` branch**.
@@ -23,3 +23,4 @@ This portfolio now includes 100 company demos with **different layout and conten
   - `/portfolio/assets.css` and `/portfolio/sites/...`
 
 If styles still look old, hard refresh (Ctrl/Cmd + Shift + R) after the workflow run completes.
+ 

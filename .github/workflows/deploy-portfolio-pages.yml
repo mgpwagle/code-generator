@@ -3,10 +3,19 @@ name: Deploy portfolio to GitHub Pages
 on:
   push:
     branches: ["main", "master", "work"]
+ 
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: write 
+    paths:
+      - "portfolio/**"
+      - ".github/workflows/deploy-portfolio-pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+ 
   pages: write
   id-token: write
 
@@ -17,16 +26,27 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
+ 
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+ 
       - name: Prepare static artifact
         run: |
           mkdir -p _site _site/portfolio
           cp -R portfolio/* _site/
           cp -R portfolio/* _site/portfolio/
           touch _site/.nojekyll
+ 
           test -f _site/assets.css
           test -f _site/sites/site-001.html
           test -f _site/portfolio/assets.css
@@ -58,10 +78,18 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: _site
+ 
+
+      - name: Upload portfolio artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./_site
+ 
 
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+ 
 
   deploy_gh_pages_branch:
     needs: build
@@ -80,3 +108,4 @@ jobs:
           publish_dir: _site
           publish_branch: gh-pages
           force_orphan: true
+ 
